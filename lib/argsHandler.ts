@@ -127,6 +127,7 @@ export interface ICLIArgs {
   mipmap?: boolean;
   flipY?: boolean;
   square?: string;
+  inputColorSpace: 'sRGB' | 'lRGB';
   pot?: string;
   flags?: string[] | null;
   verbose?: boolean;

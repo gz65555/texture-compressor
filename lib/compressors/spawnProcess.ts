@@ -1,5 +1,5 @@
 // Native
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import { join } from 'path';
 
 // Arguments
@@ -19,39 +19,29 @@ export const spawnProcess = (
   args: ICLIArgs,
   flagMapping: string[],
   binaryName: string
-): Promise<any> => {
+): Promise<void> => {
   const toolPath = join(getBinaryDirectory(), binaryName);
   const toolFlags = args.flags ? splitFlagAndValue(createFlagsForTool(args.flags)) : [];
   const combinedFlags = [...flagMapping, ...toolFlags];
 
-  return new Promise(
-    (resolve, reject): void => {
-      if (args.verbose) {
-        console.log(`Using flags: ${combinedFlags}`);
-      }
-
-      const child = spawn(toolPath, combinedFlags, {
-        // @ts-ignore
-        env: {
-          PATH: getBinaryDirectory() || process.env,
-        },
-      });
-
-      if (args.verbose) {
-        child.stdout.on('data', (data: string) => console.log(`${data}`));
-
-        child.stderr.on('data', (data: string) => {
-          console.log(`${data}`);
-        });
-      }
-
-      child.once('exit', (code: number) => {
-        if (code !== 0) {
-          reject(new Error(`Compression tool exited with error code ${code}`));
-        } else {
-          resolve();
-        }
-      });
+  return new Promise((resolve, reject): void => {
+    if (args.verbose) {
+      console.log(`Using flags: ${combinedFlags}`);
     }
-  );
+
+    const child = spawn(toolPath, combinedFlags);
+
+    if (args.verbose) {
+      console.log(child.stdout.toString());
+      console.log(child.stderr.toString());
+    }
+
+    child.once('exit', (code: number) => {
+      if (code !== 0) {
+        reject(new Error(`Compression tool exited with error code ${code}`));
+      } else {
+        resolve();
+      }
+    });
+  });
 };

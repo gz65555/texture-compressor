@@ -68,6 +68,8 @@ export const compressWithPVRTexTool = (args: ICLIArgs): Promise<any> => {
     `${args.compression}`,
     `-q`,
     `${args.quality}`,
+    `-ics`,
+    `${args.inputColorSpace}`,
   ];
 
   if (args.square !== 'no') {
